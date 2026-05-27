@@ -7,6 +7,16 @@ const SOCIALS = {
 };
 
 // =====================================================
+// YOUR PROFILE — shown in the About tab
+// =====================================================
+const PROFILE = {
+  name: "Izzy",                          // your name or handle
+  avatar: "",                            // URL to your photo (optional)
+  bio: "Filmmaker based somewhere great. I tell stories through lens, light, and motion. Always chasing the next frame.",
+  interests: ["Directing", "Cinematography", "Editing", "Motion Graphics", "Storytelling"],
+};
+
+// =====================================================
 // YOUR PROJECTS
 //
 // HOW TO GET YOUR VIDEO EMBED URL:
@@ -35,12 +45,12 @@ const projects = [
     title: "Featured Film",
     category: "short-film",   // short-film | motion-graphics | commercial | music-video | documentary
     year: "2025",
-    client: "Festival Submission",      // what it was made for
-    role: "Director . DP . Editor",     // what you did
+    client: "Festival Submission",
+    role: "Director . DP . Editor",
     desc: "Describe your film here. What is it about? What was the concept? What makes it worth watching?",
-    bts: [],                            // BTS photo URLs go here
-    embed: "",                          // YouTube or Vimeo embed URL
-    thumb: "",                          // thumbnail image URL (optional)
+    bts: [],
+    embed: "",
+    thumb: "",
   },
   {
     title: "Motion Piece",
@@ -98,7 +108,6 @@ const projects = [
     thumb: "",
   },
 ];
-// =====================================================
 
 const CAT_META = {
   "short-film":      { label:"Short Film",  icon:"🎬", c1:"#4a0a0a", c2:"#2a0505", accent:"#ff6b6b" },
@@ -108,12 +117,13 @@ const CAT_META = {
   "documentary":     { label:"Documentary",  icon:"🎤", c1:"#001a0a", c2:"#000e05", accent:"#6fff9e" },
 };
 const CATS = [
-  { id:"all",             label:"All",    icon:"🎮" },
-  { id:"short-film",      label:"Film",   icon:"🎬" },
-  { id:"motion-graphics", label:"Motion", icon:"✨" },
-  { id:"commercial",      label:"Ad",     icon:"📺" },
-  { id:"music-video",     label:"Music",  icon:"🎵" },
-  { id:"documentary",     label:"Doc",    icon:"🎤" },
+  { id:"about",          label:"About",  icon:"👤" },
+  { id:"all",            label:"All",    icon:"🎮" },
+  { id:"short-film",     label:"Film",   icon:"🎬" },
+  { id:"motion-graphics",label:"Motion", icon:"✨" },
+  { id:"commercial",     label:"Ad",     icon:"📺" },
+  { id:"music-video",    label:"Music",  icon:"🎵" },
+  { id:"documentary",    label:"Doc",    icon:"🎤" },
 ];
 
 const IG_SVG = `<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`;
@@ -175,7 +185,7 @@ const AudioEngine = (() => {
 // =====================================================
 // STATE
 // =====================================================
-let appState="boot", activeCat="all", selectedIdx=0, filteredProjects=[...projects];
+let appState="boot", activeCat="about", selectedIdx=0, filteredProjects=[...projects];
 let audioUnlocked=false, bgmStarted=false;
 
 function setState(s) {
@@ -232,15 +242,104 @@ function toMenu(){ const flash=document.getElementById("screenFlash"); flash.cla
 // XMB
 // =====================================================
 function buildXMB(){ buildCatIcons(); filterProjects(); buildRow(); }
-function buildCatIcons(){ const wrap=document.getElementById("xmbCats"); wrap.innerHTML=""; CATS.forEach(c=>{ const el=document.createElement("div"); el.className="xmb-cat"+(c.id===activeCat?" active":""); el.innerHTML=`<span class="xmb-cat-icon">${c.icon}</span><span class="xmb-cat-label">${c.label}</span>`; el.addEventListener("click",()=>{ activeCat=c.id; selectedIdx=0; AudioEngine.catSwitch(); buildXMB(); }); addHover(el); wrap.appendChild(el); }); }
-function filterProjects(){ filteredProjects=activeCat==="all"?[...projects]:projects.filter(p=>p.category===activeCat); if(selectedIdx>=filteredProjects.length) selectedIdx=0; }
-function buildRow(){ const row=document.getElementById("xmbRow"); row.innerHTML=""; filteredProjects.forEach((p,i)=>{ const m=CAT_META[p.category]||CAT_META["short-film"], size=i===selectedIdx?56:38, op=Math.max(1-Math.abs(i-selectedIdx)*0.18,0.25); const el=document.createElement("div"); el.className="xmb-icon"+(i===selectedIdx?" current":""); el.style.opacity=op.toString(); el.innerHTML=`<div class="xmb-icon-cover" style="width:${size}px;height:${size}px;background:linear-gradient(135deg,${m.c1},${m.c2});">${p.thumb?`<img src="${p.thumb}" style="width:100%;height:100%;object-fit:cover;">`:`<span style="font-size:${Math.round(size*.4)}px;">${m.icon}</span>`}</div><div class="xmb-icon-label">${p.title}</div>`; el.addEventListener("click",()=>{ selectedIdx=i; buildRow(); updateInfo(); AudioEngine.select(); setTimeout(()=>launchProject(i),220); }); el.addEventListener("mouseenter",()=>{ document.body.classList.add("c-hover"); selectedIdx=i; buildRow(); updateInfo(); }); el.addEventListener("mouseleave",()=>document.body.classList.remove("c-hover")); row.appendChild(el); }); row.style.transform=`translateX(calc(-50% + ${-selectedIdx*50+25}px))`; updateInfo(); }
-function updateInfo(){ const p=filteredProjects[selectedIdx]; if(!p) return; const m=CAT_META[p.category]||{label:"—"}; document.getElementById("xmbTitle").textContent=p.title; document.getElementById("xmbMeta").textContent=`${m.label}  .  ${p.year}`; }
+
+function buildCatIcons(){
+  const wrap=document.getElementById("xmbCats"); wrap.innerHTML="";
+  CATS.forEach(c=>{
+    const el=document.createElement("div");
+    el.className="xmb-cat"+(c.id===activeCat?" active":"");
+    el.innerHTML=`<span class="xmb-cat-icon">${c.icon}</span><span class="xmb-cat-label">${c.label}</span>`;
+    el.addEventListener("click",()=>{ activeCat=c.id; selectedIdx=0; AudioEngine.catSwitch(); buildXMB(); buildShelf(); });
+    addHover(el); wrap.appendChild(el);
+  });
+}
+
+function filterProjects(){
+  filteredProjects = (activeCat==="all"||activeCat==="about") ? [...projects] : projects.filter(p=>p.category===activeCat);
+  if(selectedIdx>=filteredProjects.length) selectedIdx=0;
+}
+
+function buildRow(){
+  const row=document.getElementById("xmbRow");
+  const panel=document.getElementById("profilePanel");
+  const rowWrap=document.querySelector(".xmb-row-wrap");
+
+  if(activeCat==="about"){
+    // Show profile panel, hide game row
+    row.innerHTML=""; row.style.transform="";
+    rowWrap.style.display="none";
+    panel.classList.add("active");
+    // Populate profile
+    const avatarEl=document.getElementById("profileAvatar");
+    avatarEl.innerHTML=PROFILE.avatar
+      ? `<img src="${PROFILE.avatar}" alt="${PROFILE.name}">`
+      : `<div class="profile-avatar-ph">👤</div>`;
+    document.getElementById("profileHandle").textContent=PROFILE.name;
+    document.getElementById("profileBio").textContent=PROFILE.bio;
+    const tagsEl=document.getElementById("profileTags"); tagsEl.innerHTML="";
+    (PROFILE.interests||[]).forEach(tag=>{ const s=document.createElement("span"); s.className="profile-tag"; s.textContent=tag; tagsEl.appendChild(s); });
+    document.getElementById("xmbTitle").textContent=PROFILE.name;
+    document.getElementById("xmbMeta").textContent="FILMMAKER . CREATOR";
+    return;
+  }
+
+  // Hide profile panel, show game row
+  panel.classList.remove("active");
+  rowWrap.style.display="";
+
+  row.innerHTML="";
+  filteredProjects.forEach((p,i)=>{
+    const m=CAT_META[p.category]||CAT_META["short-film"], size=i===selectedIdx?56:38, op=Math.max(1-Math.abs(i-selectedIdx)*0.18,0.25);
+    const el=document.createElement("div"); el.className="xmb-icon"+(i===selectedIdx?" current":""); el.style.opacity=op.toString();
+    el.innerHTML=`<div class="xmb-icon-cover" style="width:${size}px;height:${size}px;background:linear-gradient(135deg,${m.c1},${m.c2});">${p.thumb?`<img src="${p.thumb}" style="width:100%;height:100%;object-fit:cover;">`:`<span style="font-size:${Math.round(size*.4)}px;">${m.icon}</span>`}</div><div class="xmb-icon-label">${p.title}</div>`;
+    el.addEventListener("click",()=>{ selectedIdx=i; buildRow(); updateInfo(); AudioEngine.select(); setTimeout(()=>launchProject(i),220); });
+    el.addEventListener("mouseenter",()=>{ document.body.classList.add("c-hover"); selectedIdx=i; buildRow(); updateInfo(); });
+    el.addEventListener("mouseleave",()=>document.body.classList.remove("c-hover"));
+    row.appendChild(el);
+  });
+  row.style.transform=`translateX(calc(-50% + ${-selectedIdx*50+25}px))`;
+  updateInfo();
+}
+
+function updateInfo(){
+  if(activeCat==="about") return;
+  const p=filteredProjects[selectedIdx]; if(!p) return;
+  const m=CAT_META[p.category]||{label:"—"};
+  document.getElementById("xmbTitle").textContent=p.title;
+  document.getElementById("xmbMeta").textContent=`${m.label}  .  ${p.year}`;
+}
 
 // =====================================================
-// SHELF
+// SHELF — shows only current category's games
 // =====================================================
-function buildShelf(){ const shelf=document.getElementById("shelfCases"); shelf.innerHTML=""; projects.forEach((p,i)=>{ const m=CAT_META[p.category]||CAT_META["short-film"]; const el=document.createElement("div"); el.className="game-case"; el.dataset.idx=i; el.innerHTML=`<div class="case-spine"></div><div class="case-body"><div class="case-art"><div class="case-art-bg" style="background:linear-gradient(135deg,${m.c1},${m.c2},${m.c1});"></div>${p.thumb?`<img src="${p.thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.7;">`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.55;">${m.icon}</div>`}<div class="case-art-title">${p.title}</div></div><div class="case-bottom"><div class="case-platform" style="color:${m.accent};">IZZY2</div><div class="case-year">${p.year}</div></div></div><div class="case-shadow"></div>`; el.addEventListener("click",(e)=>launchFromCase(i,el,e)); el.addEventListener("mouseenter",()=>{ document.body.classList.add("c-hover"); AudioEngine.hover(); const fi=filteredProjects.indexOf(p); if(fi>=0){ selectedIdx=fi; buildRow(); } }); el.addEventListener("mouseleave",()=>document.body.classList.remove("c-hover")); shelf.appendChild(el); }); }
+function buildShelf(){
+  const shelf=document.getElementById("shelfCases"); shelf.innerHTML="";
+  const gameShelf=document.querySelector(".game-shelf");
+
+  if(activeCat==="about"){
+    // Show empty shelf with hint
+    const hint=document.createElement("div"); hint.className="shelf-empty"; hint.textContent="select a category to browse";
+    shelf.appendChild(hint); return;
+  }
+
+  const toShow = activeCat==="all" ? projects : projects.filter(p=>p.category===activeCat);
+
+  if(toShow.length===0){
+    const hint=document.createElement("div"); hint.className="shelf-empty"; hint.textContent="no projects in this category yet";
+    shelf.appendChild(hint); return;
+  }
+
+  toShow.forEach(p=>{
+    const realIdx=projects.indexOf(p);
+    const m=CAT_META[p.category]||CAT_META["short-film"];
+    const el=document.createElement("div"); el.className="game-case"; el.dataset.idx=realIdx;
+    el.innerHTML=`<div class="case-spine"></div><div class="case-body"><div class="case-art"><div class="case-art-bg" style="background:linear-gradient(135deg,${m.c1},${m.c2},${m.c1});"></div>${p.thumb?`<img src="${p.thumb}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.7;">`:`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.55;">${m.icon}</div>`}<div class="case-art-title">${p.title}</div></div><div class="case-bottom"><div class="case-platform" style="color:${m.accent};">IZZY2</div><div class="case-year">${p.year}</div></div></div><div class="case-shadow"></div>`;
+    el.addEventListener("click",(e)=>launchFromCase(realIdx,el,e));
+    el.addEventListener("mouseenter",()=>{ document.body.classList.add("c-hover"); AudioEngine.hover(); const fi=filteredProjects.indexOf(p); if(fi>=0){ selectedIdx=fi; buildRow(); } });
+    el.addEventListener("mouseleave",()=>document.body.classList.remove("c-hover"));
+    shelf.appendChild(el);
+  });
+}
 
 // =====================================================
 // SOCIAL BAR
@@ -323,7 +422,7 @@ addHover(document.getElementById("lbClose"),false);
 // =====================================================
 // KEYBOARD NAV
 // =====================================================
-document.addEventListener("keydown",e=>{ if(appState!=="menu"||modal.classList.contains("open")) return; if(e.key==="ArrowRight"){ selectedIdx=Math.min(selectedIdx+1,filteredProjects.length-1); buildRow(); AudioEngine.nav(); } if(e.key==="ArrowLeft"){ selectedIdx=Math.max(selectedIdx-1,0); buildRow(); AudioEngine.nav(); } if(e.key==="Enter") launchProject(selectedIdx); });
+document.addEventListener("keydown",e=>{ if(appState!=="menu"||modal.classList.contains("open")) return; if(activeCat==="about") return; if(e.key==="ArrowRight"){ selectedIdx=Math.min(selectedIdx+1,filteredProjects.length-1); buildRow(); AudioEngine.nav(); } if(e.key==="ArrowLeft"){ selectedIdx=Math.max(selectedIdx-1,0); buildRow(); AudioEngine.nav(); } if(e.key==="Enter") launchProject(selectedIdx); });
 
 // =====================================================
 // POWER BUTTON
